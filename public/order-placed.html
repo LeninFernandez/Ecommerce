@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Placed - CommerceHub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo">Commerce Hub</a>
+  </div>
+  <div class="nav-center">
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+    <a href="auth.html" id="navLogin">Login / Signup</a>
+    <a href="#" id="navLogout" onclick="logout()" style="display:none;">Logout</a>
+  </div>
+  <div class="nav-right">
+    <input type="text" id="globalSearch" placeholder="Search products...">
+  </div>
+</nav>
+
+<section class="order-placed-container">
+  <div class="order-card">
+    <h1>Thank you for your order!</h1>
+    <p>Your order has been placed successfully.</p>
+    <p><strong>Order ID:</strong> <span id="orderId"></span></p>
+    <p><strong>Total Amount:</strong> &#8377;<span id="orderTotal"></span></p>
+    <p>Your order will be delivered in <strong>3 working days</strong>.</p>
+    <a class="btn" href="shop.html">Continue Shopping</a>
+  </div>
+</section>
+
+<script>
+  // Get order details from localStorage
+  const orderId = localStorage.getItem("lastOrderId");
+  const orderTotal = localStorage.getItem("lastOrderTotal");
+
+  document.getElementById("orderId").innerText = orderId || "N/A";
+  document.getElementById("orderTotal").innerText = orderTotal || "0.00";
+
+  // Clear the saved order after displaying
+  localStorage.removeItem("lastOrderId");
+  localStorage.removeItem("lastOrderTotal");
+</script>
+
+</body>
+</html>

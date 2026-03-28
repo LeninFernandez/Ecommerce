@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart - Commerce Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo">Commerce Hub</a>
+  </div>
+  <div class="nav-center">
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+    <a href="auth.html" id="navLogin">Login / Signup</a>
+    <a href="#" id="navLogout" onclick="logout()" style="display:none;">Logout</a>
+  </div>
+  <div class="nav-right">
+    <input type="text" id="globalSearch" placeholder="Search products...">
+  </div>
+</nav>
+
+  <!-- Cart Section -->
+  <main>
+    <h2>Your Cart</h2>
+    <div id="cartItems" class="cart-container"></div>
+
+    <div class="cart-summary">
+      <p id="subtotal">Subtotal: ₹0</p>
+      <p id="finalTotal">Final Total: ₹0</p>
+
+      <h3>Shipping Details</h3>
+      <input type="text" id="address" placeholder="Enter shipping address">
+      <input type="text" id="cardNumber" placeholder="Enter card number">
+      <button id="payBtn">Checkout</button>
+      <p id="paymentResult"></p>
+    </div>
+  </main>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

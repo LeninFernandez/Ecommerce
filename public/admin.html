@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel – Commerce Hub</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    
+    .admin-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    /* Header bar */
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .admin-header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .admin-header span {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    /* Tab bar */
+    .admin-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #222; }
+    .tab-btn.active { color: #000; border-bottom-color: #000; }
+
+    /* Tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Toast notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+      z-index: 9999;
+    }
+    #toast.show { opacity: 1; }
+    #toast.success { background: #16a34a; }
+    #toast.error   { background: #dc2626; }
+
+    /* Loading state */
+    .loading-msg {
+      color: #888;
+      font-size: 0.9rem;
+      padding: 20px 0;
+    }
+
+    /* ── PRODUCTS TAB ── */
+    .admin-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn-primary {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary:hover { background: #333; }
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-sm {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .btn-sm:hover { background: #333; }
+
+    /* Product table */
+    .product-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .product-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: #f5f5f5;
+      border-bottom: 2px solid #e0e0e0;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #555;
+    }
+    .product-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: middle;
+    }
+    .product-table tr:hover td { background: #fafafa; }
+
+    .product-thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #eee;
+    }
+    .product-thumb-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      background: #eee;
+      display: inline-block;
+    }
+
+    /* Stock input inline */
+    .stock-input {
+      width: 64px;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.875rem;
+      text-align: center;
+    }
+    .stock-input:focus { outline: none; border-color: #000; }
+
+    /* Low stock highlight */
+    .low-stock-row td { background: #fff8f0 !important; }
+    .low-stock-badge {
+      display: inline-block;
+      background: #f97316;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* Add/Edit product form */
+    #productFormWrap {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    #productFormWrap h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .form-grid label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #555;
+      gap: 4px;
+    }
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    .form-grid textarea { resize: vertical; min-height: 60px; }
+    .form-grid input:focus,
+    .form-grid select:focus,
+    .form-grid textarea:focus { outline: none; border-color: #000; }
+    .form-actions {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn-secondary {
+      background: none;
+      border: 1px solid #ccc;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .btn-secondary:hover { background: #f0f0f0; }
+
+    /* ── ANALYTICS TAB ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .metric-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .metric-card .label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .metric-card .value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .analytics-section { margin-bottom: 32px; }
+    .analytics-section h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #555;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .top-products-list { list-style: none; padding: 0; }
+    .top-products-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9rem;
+    }
+    .top-products-list li:last-child { border-bottom: none; }
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #000;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .top-product-name { flex: 1; }
+    .top-product-stats { color: #555; font-size: 0.82rem; text-align: right; }
+
+    .trend-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .trend-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: #f5f5f5;
+      border-bottom: 2px solid #e0e0e0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #666;
+    }
+    .trend-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .low-stock-list { list-style: none; padding: 0; }
+    .low-stock-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.875rem;
+    }
+    .low-stock-list li:last-child { border-bottom: none; }
+    .stock-zero { color: #dc2626; font-weight: 700; }
+    .stock-low  { color: #f97316; font-weight: 600; }
+
+    /* ── ORDERS TAB ── */
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .orders-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: #f5f5f5;
+      border-bottom: 2px solid #e0e0e0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #555;
+    }
+    .orders-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+    }
+    .orders-table tr:hover td { background: #fafafa; }
+    .status-paid {
+      display: inline-block;
+      background: #dcfce7;
+      color: #16a34a;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .status-failed {
+      display: inline-block;
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .order-items-list { margin: 4px 0 0; font-size: 0.8rem; color: #666; }
+
+    /* ── REVIEWS TAB ── */
+    .reviews-product-block {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .reviews-product-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .reviews-product-header img {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #eee;
+    }
+    .reviews-product-header h4 { font-size: 0.95rem; font-weight: 700; margin: 0; }
+    .reviews-product-header span { font-size: 0.8rem; color: #888; }
+
+    .review-row {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .review-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .review-rating {
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #000;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      height: fit-content;
+    }
+    .review-body { flex: 1; }
+    .review-user { font-weight: 600; font-size: 0.875rem; }
+    .review-comment { font-size: 0.85rem; color: #555; margin-top: 3px; }
+    .review-date { font-size: 0.75rem; color: #aaa; margin-top: 3px; }
+
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+      .product-table th:nth-child(1),
+      .product-table td:nth-child(1) { display: none; }
+    }
+    @media (max-width: 500px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo">Commerce Hub</a>
+  </div>
+  <div class="nav-center">
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+    <a href="orders.html">Orders</a>
+  </div>
+  <div class="nav-right">
+    <span id="adminUserLabel" style="color:#fff;font-size:0.85rem;margin-right:12px;"></span>
+    <a href="#" onclick="adminLogout()" style="color:#fff;font-size:0.85rem;">Logout</a>
+  </div>
+</nav>
+
+<div class="admin-wrap">
+
+  <div class="admin-header">
+    <h1>Admin Panel</h1>
+    <span id="adminSubtitle">Loading...</span>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="admin-tabs">
+    <button class="tab-btn active" onclick="switchTab('products')">Products</button>
+    <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
+    <button class="tab-btn" onclick="switchTab('orders')">Orders</button>
+    <button class="tab-btn" onclick="switchTab('reviews')">Reviews</button>
+  </div>
+
+  <!--  PRODUCTS TAB -->
+  <div id="tab-products" class="tab-panel active">
+
+    <!-- Add / Edit form -->
+    <div id="productFormWrap">
+      <h3 id="formTitle">Add New Product</h3>
+      <input type="hidden" id="editProductId">
+      <div class="form-grid">
+        <label>Name *
+          <input type="text" id="fName" placeholder="e.g. Gaming Laptop">
+        </label>
+        <label>Price (₹) *
+          <input type="number" id="fPrice" placeholder="e.g. 55000" min="0">
+        </label>
+        <label>Category *
+          <select id="fCategory">
+            <option value="">Select…</option>
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="accessories">Accessories</option>
+            <option value="home">Home</option>
+            <option value="fitness">Fitness</option>
+          </select>
+        </label>
+<label>Stock *
+          <input type="number" id="fStock" placeholder="e.g. 10" min="0">
+        </label>
+        <label>Image path
+          <input type="text" id="fImage" placeholder="/images/laptop.jpg">
+        </label>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveProduct()">Save Product</button>
+        <button class="btn-secondary" onclick="resetForm()">Cancel</button>
+        <span id="formMsg" style="font-size:0.85rem;color:#555;"></span>
+      </div>
+    </div>
+
+    <!-- Product list -->
+    <div class="admin-toolbar">
+      <span id="productCount" style="font-size:0.85rem;color:#666;"></span>
+    </div>
+    <div id="productTableWrap">
+      <p class="loading-msg">Loading products…</p>
+    </div>
+  </div>
+
+  <!--  ANALYTICS TAB -->
+  <div id="tab-analytics" class="tab-panel">
+    <div id="analyticsContent">
+      <p class="loading-msg">Loading analytics…</p>
+    </div>
+  </div>
+
+  <!--  ORDERS TAB -->
+  <div id="tab-orders" class="tab-panel">
+    <div id="ordersContent">
+      <p class="loading-msg">Loading orders…</p>
+    </div>
+  </div>
+
+  <!--  REVIEWS TAB -->
+  <div id="tab-reviews" class="tab-panel">
+    <div id="reviewsContent">
+      <p class="loading-msg">Loading reviews…</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script src="script.js"></script>
+<script>
+//  Helpers 
+
+const token = () => localStorage.getItem("token");
+
+function apiHeaders() {
+  return { "Content-Type": "application/json", "Authorization": "Bearer " + token() };
+}
+
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "show " + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className = ""; }, 3000);
+}
+
+function fmt(n) {
+  return "₹" + Number(n).toLocaleString("en-IN");
+}
+
+function fmtDate(d) {
+  return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
+//  Tab switching 
+
+const tabLoaded = {};
+
+function switchTab(name) {
+  document.querySelectorAll(".tab-btn").forEach((b, i) => {
+    const tabs = ["products","analytics","orders","reviews"];
+    b.classList.toggle("active", tabs[i] === name);
+  });
+  document.querySelectorAll(".tab-panel").forEach(p => {
+    p.classList.toggle("active", p.id === "tab-" + name);
+  });
+  if (!tabLoaded[name]) {
+    tabLoaded[name] = true;
+    if (name === "analytics") loadAnalytics();
+    if (name === "orders")    loadAdminOrders();
+    if (name === "reviews")   loadReviews();
+  }
+}
+
+//  must be admin 
+
+(async function checkAccess() {
+  if (!token()) { window.location.href = "auth.html"; return; }
+  try {
+    const res  = await fetch("/api/me", { headers: apiHeaders() });
+    const user = await res.json();
+    if (!res.ok || user.role !== "admin") {
+      alert("Access denied. Admins only.");
+      window.location.href = "index.html";
+      return;
+    }
+    document.getElementById("adminUserLabel").textContent = "Hi, " + user.name;
+    document.getElementById("adminSubtitle").textContent  = user.email;
+    tabLoaded["products"] = true;
+    loadProducts();
+  } catch {
+    window.location.href = "index.html";
+  }
+})();
+
+function adminLogout() {
+  localStorage.removeItem("token");
+  window.location.href = "auth.html";
+}
+
+//  PRODUCTS 
+
+let allProducts = [];
+
+async function loadProducts() {
+  const wrap = document.getElementById("productTableWrap");
+  wrap.innerHTML = '<p class="loading-msg">Loading products…</p>';
+  try {
+    const res  = await fetch("/api/admin/products", { headers: apiHeaders() });
+    allProducts = await res.json();
+
+    document.getElementById("productCount").textContent =
+      allProducts.length + " products total  •  " +
+      allProducts.filter(p => p.inventoryCount < 5).length + " low stock";
+
+    if (!allProducts.length) {
+      wrap.innerHTML = "<p>No products found.</p>";
+      return;
+    }
+
+    const table = document.createElement("table");
+    table.className = "product-table";
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="productTbody"></tbody>
+    `;
+    wrap.innerHTML = "";
+    wrap.appendChild(table);
+
+    const tbody = document.getElementById("productTbody");
+    allProducts.forEach(p => tbody.appendChild(buildProductRow(p)));
+
+  } catch (err) {
+    wrap.innerHTML = "<p>Failed to load products.</p>";
+  }
+}
+
+function buildProductRow(p) {
+  const tr = document.createElement("tr");
+  if (p.inventoryCount < 5) tr.classList.add("low-stock-row");
+
+  const lowBadge = p.inventoryCount < 5
+    ? `<span class="low-stock-badge">${p.inventoryCount === 0 ? "OUT" : "LOW"}</span>`
+    : "";
+
+  tr.innerHTML = `
+    <td>
+      ${p.image
+        ? `<img class="product-thumb" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">`
+        : `<span class="product-thumb-placeholder"></span>`}
+    </td>
+    <td><strong>${p.name}</strong>${lowBadge}</td>
+    <td>${p.category}</td>
+    <td>${fmt(p.price)}</td>
+    <td>
+      <input class="stock-input" type="number" value="${p.inventoryCount}" min="0"
+             data-id="${p._id}" onchange="quickUpdateStock(this)">
+    </td>
+    <td>
+      <button class="btn-sm" onclick="editProduct('${p._id}')" style="margin-right:6px;">Edit</button>
+      <button class="btn-danger" onclick="deleteProduct('${p._id}', '${p.name.replace(/'/g,"\\'")}')">Delete</button>
+    </td>
+  `;
+  return tr;
+}
+
+// Quick stock update — only sends inventoryCount
+async function quickUpdateStock(input) {
+  const id  = input.dataset.id;
+  const val = Number(input.value);
+  if (isNaN(val) || val < 0) { showToast("Invalid stock value", "error"); return; }
+
+  try {
+    const res = await fetch(`/api/admin/products/${id}`, {
+      method: "PUT",
+      headers: apiHeaders(),
+      body: JSON.stringify({ inventoryCount: val })
+    });
+    if (!res.ok) throw new Error();
+    showToast("Stock updated");
+    // Refresh only this row's low-stock styling
+    const tr = input.closest("tr");
+    tr.classList.toggle("low-stock-row", val < 5);
+    const badge = tr.querySelector(".low-stock-badge");
+    if (val < 5) {
+      if (!badge) {
+        tr.querySelector("td:nth-child(2)").insertAdjacentHTML(
+          "beforeend",
+          `<span class="low-stock-badge">${val === 0 ? "OUT" : "LOW"}</span>`
+        );
+      } else {
+        badge.textContent = val === 0 ? "OUT" : "LOW";
+      }
+    } else if (badge) badge.remove();
+  } catch {
+    showToast("Stock update failed", "error");
+  }
+}
+
+function editProduct(id) {
+  const p = allProducts.find(x => x._id === id);
+  if (!p) return;
+  document.getElementById("formTitle").textContent     = "Edit Product";
+  document.getElementById("editProductId").value       = p._id;
+  document.getElementById("fName").value               = p.name;
+  document.getElementById("fPrice").value              = p.price;
+  document.getElementById("fCategory").value           = p.category;
+  document.getElementById("fStock").value              = p.inventoryCount;
+  document.getElementById("fImage").value              = p.image || "";
+  document.getElementById("productFormWrap").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function resetForm() {
+  document.getElementById("formTitle").textContent  = "Add New Product";
+  document.getElementById("editProductId").value    = "";
+  ["fName","fPrice","fCategory","fStock","fImage"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("formMsg").textContent = "";
+}
+
+async function saveProduct() {
+  const id   = document.getElementById("editProductId").value;
+  const name = document.getElementById("fName").value.trim();
+  const price = document.getElementById("fPrice").value;
+  const category = document.getElementById("fCategory").value;
+  const stock = document.getElementById("fStock").value;
+
+  if (!name || !price || !category || stock === "") {
+    document.getElementById("formMsg").textContent = "Name, price, category, and stock are required.";
+    return;
+  }
+
+  const body = {
+    name,
+    price:          Number(price),
+    category,
+    inventoryCount: Number(stock),
+    image:          document.getElementById("fImage").value.trim()
+  };
+
+  const url    = id ? `/api/admin/products/${id}` : "/api/admin/products";
+  const method = id ? "PUT" : "POST";
+
+  try {
+    const res = await fetch(url, { method, headers: apiHeaders(), body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) {
+      document.getElementById("formMsg").textContent = data.error || "Save failed.";
+      return;
+    }
+    showToast(id ? "Product updated" : "Product created");
+    resetForm();
+    loadProducts();
+  } catch {
+    document.getElementById("formMsg").textContent = "Something went wrong.";
+  }
+}
+
+async function deleteProduct(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`/api/admin/products/${id}`, {
+      method: "DELETE", headers: apiHeaders()
+    });
+    if (!res.ok) throw new Error();
+    showToast("Product deleted");
+    loadProducts();
+  } catch {
+    showToast("Delete failed", "error");
+  }
+}
+
+//  ANALYTICS 
+
+async function loadAnalytics() {
+  const wrap = document.getElementById("analyticsContent");
+  wrap.innerHTML = '<p class="loading-msg">Loading analytics…</p>';
+  try {
+    const res  = await fetch("/api/admin/analytics", { headers: apiHeaders() });
+    const data = await res.json();
+
+    let topHtml = data.topProducts.length
+      ? data.topProducts.map((p, i) => `
+          <li>
+            <div>
+              <span class="rank-badge">${i + 1}</span>
+              <span class="top-product-name">${p._id}</span>
+            </div>
+            <div class="top-product-stats">
+              ${p.unitsSold} units &nbsp;·&nbsp; ${fmt(p.revenue)}
+            </div>
+          </li>`).join("")
+      : "<li>No sales data yet.</li>";
+
+    let trendHtml = data.recentTrend.length
+      ? data.recentTrend.map(d => `
+          <tr>
+            <td>${d._id}</td>
+            <td>${d.orders}</td>
+            <td>${fmt(d.revenue)}</td>
+          </tr>`).join("")
+      : `<tr><td colspan="3" style="color:#888">No orders in the last 7 days.</td></tr>`;
+
+    let lowHtml = data.lowStock.length
+      ? data.lowStock.map(p => `
+          <li>
+            <span>${p.name} <span style="color:#888;font-size:0.8rem;">(${p.category})</span></span>
+            <span class="${p.inventoryCount === 0 ? "stock-zero" : "stock-low"}">
+              ${p.inventoryCount === 0 ? "Out of stock" : p.inventoryCount + " left"}
+            </span>
+          </li>`).join("")
+      : "<li style='color:#16a34a;font-size:0.875rem;'>All products have healthy stock.</li>";
+
+    wrap.innerHTML = `
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="label">Total Orders (Paid)</div>
+          <div class="value">${data.totalOrders}</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Total Revenue</div>
+          <div class="value">${fmt(data.totalRevenue)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">Avg Order Value</div>
+          <div class="value">${fmt(data.avgOrderValue)}</div>
+        </div>
+      </div>
+
+      <div class="analytics-section">
+        <h3>Top 5 Products by Units Sold</h3>
+        <ul class="top-products-list">${topHtml}</ul>
+      </div>
+
+      <div class="analytics-section">
+        <h3>Last 7 Days</h3>
+        <table class="trend-table">
+          <thead><tr><th>Date</th><th>Orders</th><th>Revenue</th></tr></thead>
+          <tbody>${trendHtml}</tbody>
+        </table>
+      </div>
+
+      <div class="analytics-section">
+        <h3>Low Stock Alert (under 5 units)</h3>
+        <ul class="low-stock-list">${lowHtml}</ul>
+      </div>
+    `;
+  } catch {
+    wrap.innerHTML = "<p>Failed to load analytics.</p>";
+  }
+}
+
+//  ORDERS 
+
+async function loadAdminOrders() {
+  const wrap = document.getElementById("ordersContent");
+  wrap.innerHTML = '<p class="loading-msg">Loading orders…</p>';
+  try {
+    const res    = await fetch("/api/admin/orders", { headers: apiHeaders() });
+    const orders = await res.json();
+
+    if (!orders.length) {
+      wrap.innerHTML = "<p>No orders yet.</p>";
+      return;
+    }
+
+    const rows = orders.map(o => {
+      const customer = o.userId
+        ? `${o.userId.name || "—"}<br><span style="font-size:0.78rem;color:#888;">${o.userId.email || ""}</span>`
+        : "—";
+
+      const itemsList = o.items
+        .map(i => `${i.name} ×${i.quantity}`)
+        .join(", ");
+
+      const statusCls = o.paymentStatus === "paid" ? "status-paid" : "status-failed";
+
+      return `
+        <tr>
+          <td style="font-family:monospace;font-size:0.78rem;color:#888;">${o._id}</td>
+          <td>${customer}</td>
+          <td>${fmt(o.totalAmount)}</td>
+          <td><span class="${statusCls}">${o.paymentStatus}</span></td>
+          <td>${fmtDate(o.date)}</td>
+          <td class="order-items-list">${itemsList}</td>
+        </tr>`;
+    }).join("");
+
+    wrap.innerHTML = `
+      <p style="font-size:0.85rem;color:#666;margin-bottom:12px;">
+        Showing most recent ${orders.length} orders
+      </p>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Items</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch {
+    wrap.innerHTML = "<p>Failed to load orders.</p>";
+  }
+}
+
+//  REVIEWS 
+
+async function loadReviews() {
+  const wrap = document.getElementById("reviewsContent");
+  wrap.innerHTML = '<p class="loading-msg">Loading reviews…</p>';
+  try {
+    const res      = await fetch("/api/admin/reviews", { headers: apiHeaders() });
+    const products = await res.json();
+
+    if (!products.length) {
+      wrap.innerHTML = "<p>No reviews yet.</p>";
+      return;
+    }
+
+    const totalReviews = products.reduce((s, p) => s + p.reviews.length, 0);
+
+    const blocks = products.map(p => {
+      const avgRating = (p.reviews.reduce((s, r) => s + r.rating, 0) / p.reviews.length).toFixed(1);
+
+      const reviewRows = p.reviews.map(r => `
+        <div class="review-row">
+          <div class="review-rating">${r.rating}/5</div>
+          <div class="review-body">
+            <div class="review-user">${r.userName || "Anonymous"}</div>
+            <div class="review-comment">${r.comment || "—"}</div>
+            <div class="review-date">${fmtDate(r.date)}</div>
+          </div>
+        </div>`).join("");
+
+      return `
+        <div class="reviews-product-block">
+          <div class="reviews-product-header">
+            ${p.image ? `<img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">` : ""}
+            <div>
+              <h4>${p.name}</h4>
+              <span>${p.reviews.length} review${p.reviews.length !== 1 ? "s" : ""} &nbsp;·&nbsp; avg ${avgRating}/5</span>
+            </div>
+          </div>
+          ${reviewRows}
+        </div>`;
+    }).join("");
+
+    wrap.innerHTML = `
+      <p style="font-size:0.85rem;color:#666;margin-bottom:16px;">
+        ${totalReviews} reviews across ${products.length} products
+      </p>
+      ${blocks}`;
+  } catch {
+    wrap.innerHTML = "<p>Failed to load reviews.</p>";
+  }
+}
+</script>
+</body>
+</html>

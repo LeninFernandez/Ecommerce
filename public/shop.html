@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop - Commerce Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo">Commerce Hub</a>
+  </div>
+  <div class="nav-center">
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+    <a href="orders.html">Orders</a>
+    <a href="auth.html" id="navLogin">Login / Signup</a>
+    <a href="#" id="navLogout" onclick="logout()" style="display:none;">Logout</a>
+  </div>
+  <div class="nav-right">
+    <input type="text" id="globalSearch" placeholder="Search products...">
+  </div>
+</nav>
+
+<!-- shop-layout filters  -->
+<div class="shop-layout">
+
+  <aside class="filters">
+    <h3>Filters</h3>
+    <label>
+      Max Price: <span id="priceValue">100000</span>
+      <input type="range" id="priceFilter" min="0" max="100000" value="100000"
+             oninput="document.getElementById('priceValue').innerText = this.value">
+    </label>
+    <label>
+      <input type="checkbox" id="saleFilter"> In Stock Only
+    </label>
+    <label>
+      Category:
+      <select id="categoryFilter">
+        <option value="">All</option>
+        <option value="electronics">Electronics</option>
+        <option value="clothing">Clothing</option>
+        <option value="accessories">Accessories</option>
+        <option value="home">Home Appliances</option>
+        <option value="fitness">Fitness</option>
+      </select>
+    </label>
+    <label>
+      Sort by:
+      <select id="sortSelect">
+        <option value="">Default</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+      </select>
+    </label>
+  </aside>
+
+  <main class="shop-main">
+    <div id="productGrid"></div>
+    <div id="pagination" class="pagination"></div>
+  </main>
+
+</div>
+
+
+
+<script src="script.js"></script>
+</body>
+</html>

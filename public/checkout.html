@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout - CommerceHub</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo">Commerce Hub</a>
+  </div>
+  <div class="nav-center">
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+    <a href="auth.html" id="navLogin">Login / Signup</a>
+    <a href="#" id="navLogout" onclick="logout()" style="display:none;">Logout</a>
+  </div>
+  <div class="nav-right">
+    <input type="text" id="globalSearch" placeholder="Search products...">
+  </div>
+</nav>
+
+<section class="checkout-container">
+
+<h1>Checkout</h1>
+
+<div class="checkout-grid">
+
+  <!-- Shipping Info -->
+  <div class="checkout-card">
+    <h3>Shipping Information</h3>
+    <label for="address">Address</label>
+    <input type="text" id="address" placeholder="Enter your shipping address">
+  </div>
+
+  <!-- Payment Info -->
+  <div class="checkout-card">
+    <h3>Payment Information</h3>
+    <label for="cardNumber">Card Number</label>
+    <input type="text" id="cardNumber" placeholder="Enter your card number">
+    
+    <h3>Order Summary</h3>
+    <p id="subtotal">Subtotal: $0</p>
+    <p id="finalTotal">Total: $0</p>
+
+    <button id="payBtn">Pay & Place Order</button>
+    <p id="paymentResult" style="margin-top:10px;font-weight:bold;"></p>
+  </div>
+
+</div>
+
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>

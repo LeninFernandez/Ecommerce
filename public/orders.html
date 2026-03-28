@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders - Commerce Hub</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="logo">Commerce Hub</a>
+  </div>
+  <div class="nav-center">
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+    <a href="auth.html" id="navLogin">Login / Signup</a>
+    <a href="#" id="navLogout" onclick="logout()" style="display:none;">Logout</a>
+  </div>
+  <div class="nav-right">
+    <input type="text" id="globalSearch" placeholder="Search products...">
+  </div>
+</nav>
+
+<h2>Your Orders</h2>
+
+<div id="orders"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
