@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
 require("dotenv").config();
 const User = require("./models/User");
@@ -55,12 +54,6 @@ async function adminAuth(req, res, next) {
   }
 }
 
-//  EMAIL 
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-});
 
 //  AUTH ROUTES 
 
@@ -256,29 +249,24 @@ app.post("/api/checkout", auth, async (req, res) => {
     });
 
     if (paymentStatus === "paid") {
-      for (const item of cart.items) {
-        const updated = await Product.findOneAndUpdate(
+    
+    const updateResults = await Promise.all(
+      cart.items.map(item =>
+        Product.findOneAndUpdate(
           { _id: item.productId._id, inventoryCount: { $gte: item.quantity } },
           { $inc: { inventoryCount: -item.quantity } }
-        );
-        if (!updated) {
-          return res.status(400).json({
-            error: `"${item.productId.name}" is no longer available in the requested quantity.`
-          });
-        }
-      }
+        )
+      )
+    );
+
+    const failedItem = cart.items.find((item, i) => !updateResults[i]);
+    if (failedItem) {
+      return res.status(400).json({
+        error: `"${failedItem.productId.name}" is no longer available in the requested quantity.`
+      });
+    }
       cart.items = [];
       await cart.save();
-      const user = await User.findById(req.user.id);
-      try {
-        await transporter.sendMail({
-          to: user.email,
-          subject: "Order Receipt",
-          text: `Your order total is Rs. ${total}`
-        });
-      } catch (emailErr) {
-        console.error("Email send failed (order still placed):", emailErr.message);
-      }
     }
     res.json(order);
   } catch (err) {
