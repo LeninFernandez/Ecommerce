@@ -864,3 +864,10 @@ footer {
 .pagination button:last-child {
   background: #16a34a;
 }
+
+
+#analogClock {
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  vertical-align: middle;
+}

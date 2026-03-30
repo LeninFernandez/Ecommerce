@@ -539,3 +539,79 @@ async function injectAdminLink() {
 }
 
 injectAdminLink();
+function startAnalogClock() {
+  const canvas = document.getElementById("analogClock");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const cx = 25, cy = 25, r = 22;
+
+  function draw() {
+    const now = new Date();
+    const hrs = now.getHours() % 12;
+    const min = now.getMinutes();
+    const sec = now.getSeconds();
+
+    ctx.clearRect(0, 0, 50, 50);
+
+    // Clock face
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    ctx.strokeStyle = "#333";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Hour markers
+    for (let i = 0; i < 12; i++) {
+      const angle = (i * Math.PI) / 6;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * 18, cy + Math.sin(angle) * 18);
+      ctx.lineTo(cx + Math.cos(angle) * 21, cy + Math.sin(angle) * 21);
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Hour hand
+    const hAngle = ((hrs + min / 60) * Math.PI) / 6 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(hAngle) * 12, cy + Math.sin(hAngle) * 12);
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    // Minute hand
+    const mAngle = ((min + sec / 60) * Math.PI) / 30 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(mAngle) * 18, cy + Math.sin(mAngle) * 18);
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    // Second hand
+    const sAngle = (sec * Math.PI) / 30 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(sAngle) * 20, cy + Math.sin(sAngle) * 20);
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 1;
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 2, 0, 2 * Math.PI);
+    ctx.fillStyle = "red";
+    ctx.fill();
+  }
+
+  setInterval(draw, 1000);
+  draw();
+}
+
+startAnalogClock();
