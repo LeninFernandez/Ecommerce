@@ -39,7 +39,6 @@ A full-stack e-commerce web application with a companion React Native mobile app
 | Backend | Node.js, Express.js |
 | Database | MongoDB Atlas, Mongoose |
 | Authentication | JWT (jsonwebtoken), bcrypt |
-| Email | Nodemailer, Brevo SDK, Resend |
 | Deployment | Render |
 
 ---
