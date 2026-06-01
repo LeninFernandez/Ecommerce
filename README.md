@@ -2,7 +2,7 @@
 
 A full-stack e-commerce web application with a companion React Native mobile app. Built with Node.js, Express, MongoDB Atlas, and vanilla HTML/CSS/JS on the web, and Expo (React Native + TypeScript) on mobile.
 
-**Live Demo:** [Deployed on Render](https://drive.google.com/file/d/1i_3TszJhi9XnUJBFMOD41dPD9aeC0mfR/view?usp=sharing)
+**Live Demo:** [Deployed on Render](https://ecommerce-ebui.onrender.com/) | [Demo Video](https://drive.google.com/file/d/1i_3TszJhi9XnUJBFMOD41dPD9aeC0mfR/view?usp=sharing)
 
 ---
 
